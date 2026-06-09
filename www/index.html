@@ -1,0 +1,413 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Siêu Máy Tính Toàn Năng 2026</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjs/12.4.0/math.js"></script>
+    <style>
+        body { font-family: 'Inter', sans-serif; -webkit-tap-highlight-color: transparent; }
+        .tab-content { display: none; }
+        .tab-content.active { display: block; }
+        /* Tối ưu cuộn mượt cho màn hình kết quả */
+        .history-screen { scroll-behavior: smooth; }
+    </style>
+</head>
+<body class="bg-slate-900 text-slate-100 min-h-screen flex flex-col justify-between overflow-x-hidden">
+
+    <header class="bg-slate-800/80 backdrop-blur border-b border-slate-700 p-4 sticky top-0 z-50 flex justify-between items-center shadow-lg">
+        <div class="flex items-center gap-2">
+            <span class="text-2xl bg-gradient-to-r from-cyan-400 to-blue-500 text-transparent bg-clip-text font-black">
+                <i class="fa-solid fa-square-root-variable mr-1"></i> OMNI-CALC 2026
+            </span>
+        </div>
+        <div class="text-xs font-bold bg-slate-900/80 px-2.5 py-1.5 rounded-full text-cyan-400 border border-cyan-500/30">
+            Cấp độ: <span id="current-level-tag">Phổ thông</span>
+        </div>
+    </header>
+
+    <div class="w-full max-w-lg mx-auto bg-slate-950 p-6 flex flex-col justify-end items-end border-b border-slate-800 min-h-[160px] px-6 relative">
+        <div id="calc-history" class="text-sm text-slate-500 font-medium tracking-wide max-h-12 overflow-y-auto mb-1 w-full text-right"></div>
+        <div id="calc-display" class="text-4xl md:text-5xl font-light text-cyan-300 tracking-tight break-all w-full text-right select-all">0</div>
+    </div>
+
+    <nav class="bg-slate-800 border-b border-slate-700 flex overflow-x-auto shadow-inner scrollbar-none sticky top-[65px] z-40">
+        <button onclick="switchTab('level-basic')" id="tab-level-basic" class="tab-btn flex-1 min-w-[90px] py-3 text-center text-xs font-bold uppercase tracking-wider border-b-2 border-cyan-500 text-cyan-400 transition-all">Lớp 1-5</button>
+        <button onclick="switchTab('level-junior')" id="tab-level-junior" class="tab-btn flex-1 min-w-[90px] py-3 text-center text-xs font-bold uppercase tracking-wider border-b-2 border-transparent text-slate-400 transition-all">Lớp 6-9</button>
+        <button onclick="switchTab('level-senior')" id="tab-level-senior" class="tab-btn flex-1 min-w-[90px] py-3 text-center text-xs font-bold uppercase tracking-wider border-b-2 border-transparent text-slate-400 transition-all">Lớp 10-12</button>
+        <button onclick="switchTab('level-university')" id="tab-level-university" class="tab-btn flex-1 min-w-[90px] py-3 text-center text-xs font-bold uppercase tracking-wider border-b-2 border-transparent text-slate-400 transition-all">Đại học+</button>
+    </nav>
+
+    <main class="flex-1 max-w-lg w-full mx-auto p-4 flex flex-col justify-center">
+
+        <div id="level-basic" class="tab-content active pop-in w-full">
+            <div class="mb-3 text-xs font-bold text-emerald-400 uppercase tracking-widest"><i class="fa-solid fa-graduation-cap"></i> Phép tính căn bản & Đổi đơn vị</div>
+            <div class="grid grid-cols-4 gap-2.5">
+                <button onclick="clearDisplay()" class="bg-rose-500/20 hover:bg-rose-500/30 text-rose-400 font-bold p-4 rounded-xl text-lg">C</button>
+                <button onclick="input('(')" class="bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold p-4 rounded-xl text-lg">(</button>
+                <button onclick="input(')') class="bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold p-4 rounded-xl text-lg">)</button>
+                <button onclick="input('/')" class="bg-amber-500/10 hover:bg-amber-500/20 text-amber-400 font-bold p-4 rounded-xl text-xl">÷</button>
+                
+                <button onclick="input('7')" class="bg-slate-800 hover:bg-slate-700 text-white font-semibold p-4 rounded-xl text-xl">7</button>
+                <button onclick="input('8')" class="bg-slate-800 hover:bg-slate-700 text-white font-semibold p-4 rounded-xl text-xl">8</button>
+                <button onclick="input('9')" class="bg-slate-800 hover:bg-slate-700 text-white font-semibold p-4 rounded-xl text-xl">9</button>
+                <button onclick="input('*')" class="bg-amber-500/10 hover:bg-amber-500/20 text-amber-400 font-bold p-4 rounded-xl text-xl">×</button>
+                
+                <button onclick="input('4')" class="bg-slate-800 hover:bg-slate-700 text-white font-semibold p-4 rounded-xl text-xl">4</button>
+                <button onclick="input('5')" class="bg-slate-800 hover:bg-slate-700 text-white font-semibold p-4 rounded-xl text-xl">5</button>
+                <button onclick="input('6')" class="bg-slate-800 hover:bg-slate-700 text-white font-semibold p-4 rounded-xl text-xl">6</button>
+                <button onclick="input('-')" class="bg-amber-500/10 hover:bg-amber-500/20 text-amber-400 font-bold p-4 rounded-xl text-xl">−</button>
+                
+                <button onclick="input('1')" class="bg-slate-800 hover:bg-slate-700 text-white font-semibold p-4 rounded-xl text-xl">1</button>
+                <button onclick="input('2')" class="bg-slate-800 hover:bg-slate-700 text-white font-semibold p-4 rounded-xl text-xl">2</button>
+                <button onclick="input('3')" class="bg-slate-800 hover:bg-slate-700 text-white font-semibold p-4 rounded-xl text-xl">3</button>
+                <button onclick="input('+')" class="bg-amber-500/10 hover:bg-amber-500/20 text-amber-400 font-bold p-4 rounded-xl text-xl">+</button>
+                
+                <button onclick="input('0')" class="bg-slate-800 hover:bg-slate-700 text-white font-semibold p-4 rounded-xl text-xl col-span-2">0</button>
+                <button onclick="input('.')" class="bg-slate-800 hover:bg-slate-700 text-white font-semibold p-4 rounded-xl text-xl">.</button>
+                <button onclick="calculate()" class="bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-600 hover:to-blue-700 text-white font-black p-4 rounded-xl text-xl shadow-lg shadow-blue-500/20">=</button>
+            </div>
+            <div class="grid grid-cols-2 gap-2 mt-3">
+                <button onclick="toolConvertUnit()" class="bg-slate-800/60 border border-slate-700 text-slate-300 p-3 rounded-xl font-bold text-xs"><i class="fa-solid fa-ruler-combined mr-1 text-cyan-400"></i> Đổi Đơn Vị (m, cm, kg, g)</button>
+                <button onclick="toolGCDLCM()" class="bg-slate-800/60 border border-slate-700 text-slate-300 p-3 rounded-xl font-bold text-xs"><i class="fa-solid fa-arrow-down-1-9 mr-1 text-emerald-400"></i> Tìm ƯCLN & BCNN</button>
+            </div>
+        </div>
+
+        <div id="level-junior" class="tab-content pop-in w-full">
+            <div class="mb-3 text-xs font-bold text-sky-400 uppercase tracking-widest"><i class="fa-solid fa-calculator mr-1"></i> Số Nguyên, Số Mũ & Phương Trình Bậc 2</div>
+            <div class="grid grid-cols-4 gap-2">
+                <button onclick="input('sqrt(')" class="bg-slate-800 text-cyan-400 font-bold p-3.5 rounded-xl text-sm">√x</button>
+                <button onclick="input('^2')" class="bg-slate-800 text-cyan-400 font-bold p-3.5 rounded-xl text-sm">x²</button>
+                <button onclick="input('^')" class="bg-slate-800 text-cyan-400 font-bold p-3.5 rounded-xl text-sm">xʸ</button>
+                <button onclick="input('abs(')" class="bg-slate-800 text-cyan-400 font-bold p-3.5 rounded-xl text-sm">|x|</button>
+                
+                <button onclick="input('7')" class="bg-slate-800 font-semibold p-3.5 rounded-xl text-lg">7</button>
+                <button onclick="input('8')" class="bg-slate-800 font-semibold p-3.5 rounded-xl text-lg">8</button>
+                <button onclick="input('9')" class="bg-slate-800 font-semibold p-3.5 rounded-xl text-lg">9</button>
+                <button onclick="input('/')" class="bg-slate-800/50 text-amber-400 font-bold p-3.5 rounded-xl text-lg">÷</button>
+
+                <button onclick="input('4')" class="bg-slate-800 font-semibold p-3.5 rounded-xl text-lg">4</button>
+                <button onclick="input('5')" class="bg-slate-800 font-semibold p-3.5 rounded-xl text-lg">5</button>
+                <button onclick="input('6')" class="bg-slate-800 font-semibold p-3.5 rounded-xl text-lg">6</button>
+                <button onclick="input('*')" class="bg-slate-800/50 text-amber-400 font-bold p-3.5 rounded-xl text-lg">×</button>
+
+                <button onclick="input('1')" class="bg-slate-800 font-semibold p-3.5 rounded-xl text-lg">1</button>
+                <button onclick="input('2')" class="bg-slate-800 font-semibold p-3.5 rounded-xl text-lg">2</button>
+                <button onclick="input('3')" class="bg-slate-800 font-semibold p-3.5 rounded-xl text-lg">3</button>
+                <button onclick="input('-')" class="bg-slate-800/50 text-amber-400 font-bold p-3.5 rounded-xl text-lg">−</button>
+
+                <button onclick="clearDisplay()" class="bg-rose-500/20 text-rose-400 font-bold p-3.5 rounded-xl text-sm">C</button>
+                <button onclick="input('0')" class="bg-slate-800 font-semibold p-3.5 rounded-xl text-lg">0</button>
+                <button onclick="calculate()" class="bg-cyan-500 text-white font-black p-3.5 rounded-xl text-lg">=</button>
+                <button onclick="input('+')" class="bg-slate-800/50 text-amber-400 font-bold p-3.5 rounded-xl text-lg">+</button>
+            </div>
+            <div class="grid grid-cols-2 gap-2 mt-3">
+                <button onclick="solveQuadratic()" class="bg-slate-800/60 border border-slate-700 text-slate-300 p-3 rounded-xl font-bold text-xs"><i class="fa-solid fa-function mr-1 text-sky-400"></i> Giải Phương Trình Bậc 2</button>
+                <button onclick="toolPythagoras()" class="bg-slate-800/60 border border-slate-700 text-slate-300 p-3 rounded-xl font-bold text-xs"><i class="fa-solid fa-triangle mr-1 text-amber-400"></i> Tính Cạnh Huyền (Pythagore)</button>
+            </div>
+        </div>
+
+        <div id="level-senior" class="tab-content pop-in w-full">
+            <div class="mb-3 text-xs font-bold text-purple-400 uppercase tracking-widest"><i class="fa-solid fa-wave-square mr-1"></i> Lượng Giác, Logarit & Vectơ</div>
+            <div class="grid grid-cols-5 gap-1.5">
+                <button onclick="input('sin(')" class="bg-slate-800 text-purple-300 font-bold p-3 rounded-xl text-xs">sin</button>
+                <button onclick="input('cos(')" class="bg-slate-800 text-purple-300 font-bold p-3 rounded-xl text-xs">cos</button>
+                <button onclick="input('tan(')" class="bg-slate-800 text-purple-300 font-bold p-3 rounded-xl text-xs">tan</button>
+                <button onclick="input('log(')" class="bg-slate-800 text-purple-300 font-bold p-3 rounded-xl text-xs">log</button>
+                <button onclick="input('ln(')" class="bg-slate-800 text-purple-300 font-bold p-3 rounded-xl text-xs">ln</button>
+
+                <button onclick="input('7')" class="bg-slate-800 font-semibold p-3.5 rounded-xl text-lg">7</button>
+                <button onclick="input('8')" class="bg-slate-800 font-semibold p-3.5 rounded-xl text-lg">8</button>
+                <button onclick="input('9')" class="bg-slate-800 font-semibold p-3.5 rounded-xl text-lg">9</button>
+                <button onclick="input('/')" class="bg-slate-800/50 text-amber-400 font-bold p-3.5 rounded-xl text-lg">÷</button>
+                <button onclick="input('pi')" class="bg-slate-800/70 text-amber-300 font-bold p-3 rounded-xl text-sm">π</button>
+
+                <button onclick="input('4')" class="bg-slate-800 font-semibold p-3.5 rounded-xl text-lg">4</button>
+                <button onclick="input('5')" class="bg-slate-800 font-semibold p-3.5 rounded-xl text-lg">5</button>
+                <button onclick="input('6')" class="bg-slate-800 font-semibold p-3.5 rounded-xl text-lg">6</button>
+                <button onclick="input('*')" class="bg-slate-800/50 text-amber-400 font-bold p-3.5 rounded-xl text-lg">×</button>
+                <button onclick="input('e')" class="bg-slate-800/70 text-amber-300 font-bold p-3 rounded-xl text-sm">e</button>
+
+                <button onclick="input('1')" class="bg-slate-800 font-semibold p-3.5 rounded-xl text-lg">1</button>
+                <button onclick="input('2')" class="bg-slate-800 font-semibold p-3.5 rounded-xl text-lg">2</button>
+                <button onclick="input('3')" class="bg-slate-800 font-semibold p-3.5 rounded-xl text-lg">3</button>
+                <button onclick="input('-')" class="bg-slate-800/50 text-amber-400 font-bold p-3.5 rounded-xl text-lg">−</button>
+                <button onclick="input('i')" class="bg-slate-800/70 text-indigo-400 font-bold p-3 rounded-xl text-sm">i</button>
+
+                <button onclick="clearDisplay()" class="bg-rose-500/20 text-rose-400 font-bold p-3.5 rounded-xl text-xs">C</button>
+                <button onclick="input('0')" class="bg-slate-800 font-semibold p-3.5 rounded-xl text-lg">0</button>
+                <button onclick="input('.')" class="bg-slate-800 font-semibold p-3.5 rounded-xl text-lg">.</button>
+                <button onclick="calculate()" class="bg-purple-500 text-white font-black p-3.5 rounded-xl text-lg">=</button>
+                <button onclick="input('+')" class="bg-slate-800/50 text-amber-400 font-bold p-3.5 rounded-xl text-lg">+</button>
+            </div>
+            <div class="grid grid-cols-2 gap-2 mt-3">
+                <button onclick="toolVectorDot()" class="bg-slate-800/60 border border-slate-700 text-slate-300 p-3 rounded-xl font-bold text-xs"><i class="fa-solid fa-arrows-cross mr-1 text-purple-400"></i> Tích Vô Hướng Vectơ 3D</button>
+                <button onclick="toolGeometryCone()" class="bg-slate-800/60 border border-slate-700 text-slate-300 p-3 rounded-xl font-bold text-xs"><i class="fa-solid fa-cube mr-1 text-rose-400"></i> Thể tích Khối Nón / Khối Cầu</button>
+            </div>
+        </div>
+
+        <div id="level-university" class="tab-content pop-in w-full">
+            <div class="mb-3 text-xs font-bold text-cyan-400 uppercase tracking-widest"><i class="fa-solid fa-infinity mr-1"></i> Ma trận, Đạo hàm, Tích phân & Số phức chuyên sâu</div>
+            <div class="grid grid-cols-2 gap-3 mb-4">
+                <div class="bg-slate-950/60 p-3 rounded-xl border border-slate-800">
+                    <span class="block text-[10px] uppercase font-bold text-slate-500 mb-2">Giải Tích / Tiến Sĩ</span>
+                    <div class="flex flex-col gap-2">
+                        <button onclick="calcDerivative()" class="w-full bg-cyan-500/10 hover:bg-cyan-500/20 text-cyan-400 font-bold p-2.5 rounded-lg text-left text-xs flex justify-between items-center">
+                            <span>Tính Đạo Hàm d/dx</span> <i class="fa-solid fa-chart-line text-cyan-500"></i>
+                        </button>
+                        <button onclick="calcIntegral()" class="w-full bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-400 font-bold p-2.5 rounded-lg text-left text-xs flex justify-between items-center">
+                            <span>Tích Phân Xác Định</span> <i class="fa-solid fa-bezier-curve text-emerald-500"></i>
+                        </button>
+                    </div>
+                </div>
+                <div class="bg-slate-950/60 p-3 rounded-xl border border-slate-800">
+                    <span class="block text-[10px] uppercase font-bold text-slate-500 mb-2">Đại Số Tuyến Tính</span>
+                    <div class="flex flex-col gap-2">
+                        <button onclick="calcMatrixDet()" class="w-full bg-purple-500/10 hover:bg-purple-500/20 text-purple-400 font-bold p-2.5 rounded-lg text-left text-xs flex justify-between items-center">
+                            <span>Định Thức Ma Trận (Det)</span> <i class="fa-solid fa-table-cells text-purple-500"></i>
+                        </button>
+                        <button onclick="calcMatrixInvert()" class="w-full bg-amber-500/10 hover:bg-amber-500/20 text-amber-400 font-bold p-2.5 rounded-lg text-left text-xs flex justify-between items-center">
+                            <span>Ma Trận Nghịch Đảo</span> <i class="fa-solid fa-rotate text-amber-500"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="grid grid-cols-4 gap-2">
+                <button onclick="input('i')" class="bg-slate-800 text-indigo-400 font-bold p-3 rounded-xl">i (Complex)</button>
+                <button onclick="input('det(')" class="bg-slate-800 text-purple-300 font-bold p-3 rounded-xl text-sm">det</button>
+                <button onclick="input('inv(')" class="bg-slate-800 text-amber-300 font-bold p-3 rounded-xl text-sm">inv</button>
+                <button onclick="clearDisplay()" class="bg-rose-500/20 text-rose-400 font-bold p-3 rounded-xl">C</button>
+            </div>
+        </div>
+
+    </main>
+
+    <footer class="w-full text-center py-4 text-[10px] font-bold text-slate-500 tracking-wider bg-slate-950/50 border-t border-slate-800 z-10">
+        MÁY TÍNH TOÀN NĂNG OMNICALC v3.0 • PHÁT TRIỂN NĂM 2026
+    </footer>
+
+    <script>
+        let display = document.getElementById('calc-display');
+        let history = document.getElementById('calc-history');
+        let levelTag = document.getElementById('current-level-tag');
+
+        // CHUYỂN ĐỔI TAB CẤP ĐỘ HỌC TẬP
+        function switchTab(tabId) {
+            document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
+            document.querySelectorAll('.tab-btn').forEach(el => {
+                el.classList.remove('border-cyan-500', 'text-cyan-400');
+                el.classList.add('border-transparent', 'text-slate-400');
+            });
+
+            document.getElementById(tabId).classList.add('active');
+            let activeBtn = document.getElementById('tab-' + tabId);
+            activeBtn.classList.remove('border-transparent', 'text-slate-400');
+            activeBtn.classList.add('border-cyan-500', 'text-cyan-400');
+
+            // Cập nhật nhãn trạng thái cấp độ
+            if(tabId === 'level-basic') levelTag.innerText = "Tiểu học";
+            if(tabId === 'level-junior') levelTag.innerText = "Trung học cơ sở";
+            if(tabId === 'level-senior') levelTag.innerText = "Trung học phổ thông";
+            if(tabId === 'level-university') levelTag.innerText = "Đại học / Tiến sĩ";
+        }
+
+        // TƯƠNG TÁC NHẬP DỮ LIỆU
+        function input(value) {
+            if (display.innerText === '0' && value !== '.' && !isOperator(value)) {
+                display.innerText = value;
+            } else {
+                display.innerText += value;
+            }
+        }
+
+        function isOperator(char) {
+            return ['+', '-', '*', '/', '^'].includes(char);
+        }
+
+        function clearDisplay() {
+            display.innerText = '0';
+            history.innerText = '';
+        }
+
+        // TÍNH TOÁN LÕI (SỬ DỤNG MATH.JS CHO ĐỘ CHÍNH XÁC CAO)
+        function calculate() {
+            try {
+                let expr = display.innerText;
+                history.innerText = expr + " =";
+                
+                // Sử dụng Math.js để phân tích cú pháp biểu thức nâng cao bao gồm cả số phức hay ma trận
+                let result = math.evaluate(expr);
+                
+                // Định dạng kết quả hiển thị cho đẹp nếu là số thập phân dài
+                if (typeof result === 'number' && !Number.isInteger(result)) {
+                    result = math.format(result, { precision: 10 });
+                }
+                
+                display.innerText = result;
+            } catch (error) {
+                display.innerText = 'Lỗi cú pháp';
+            }
+        }
+
+        // --- CÁC TÍNH NĂNG CHUYÊN SÂU THEO YÊU CẦU ---
+
+        // 1. Giải phương trình bậc 2 (Cấp độ Lớp 9)
+        function solveQuadratic() {
+            let a = prompt("Nhập hệ số a:");
+            let b = prompt("Nhập hệ số b:");
+            let c = prompt("Nhập hệ số c:");
+            if (a === null || b === null || c === null) return;
+            
+            try {
+                let delta = b*b - 4*a*c;
+                if (delta < 0) {
+                    // Chức năng nâng cao cấp 3: Tính nghiệm số phức khi delta âm
+                    let realPart = (-b / (2 * a)).toFixed(2);
+                    let imagPart = (Math.sqrt(-delta) / (2 * a)).toFixed(2);
+                    display.innerText = `x1 = ${realPart} + ${imagPart}i, x2 = ${realPart} - ${imagPart}i`;
+                } else if (delta === 0) {
+                    display.innerText = `Nghiệm kép x = ${-b / (2 * a)}`;
+                } else {
+                    let x1 = (-b + Math.sqrt(delta)) / (2 * a);
+                    let x2 = (-b - Math.sqrt(delta)) / (2 * a);
+                    display.innerText = `x1 = ${x1.toFixed(4)}, x2 = ${x2.toFixed(4)}`;
+                }
+                history.innerText = `${a}x² + ${b}x + ${c} = 0`;
+            } catch (e) {
+                display.innerText = "Lỗi nhập liệu";
+            }
+        }
+
+        // 2. Đổi đơn vị (Cấp độ lớp 1-5)
+        function toolConvertUnit() {
+            let value = prompt("Nhập giá trị cần đổi (ví dụ: 5):");
+            let from = prompt("Nhập đơn vị gốc (m, cm, kg, g):");
+            let to = prompt("Nhập đơn vị muốn đổi sang (m, cm, kg, g):");
+            if (!value || !from || !to) return;
+            try {
+                let result = math.evaluate(`${value} ${from} to ${to}`);
+                display.innerText = `${result}`;
+                history.innerText = `${value} ${from} ➔ ${to}`;
+            } catch (e) {
+                display.innerText = "Sai đơn vị!";
+            }
+        }
+
+        // 3. Tìm ƯCLN & BCNN
+        function toolGCDLCM() {
+            let a = prompt("Nhập số thứ nhất:");
+            let b = prompt("Nhập số thứ hai:");
+            if (!a || !b) return;
+            let gcdVal = math.gcd(parseInt(a), parseInt(b));
+            let lcmVal = math.lcm(parseInt(a), parseInt(b));
+            display.innerText = `ƯCLN: ${gcdVal} | BCNN: ${lcmVal}`;
+            history.innerText = `GCD & LCM của (${a}, ${b})`;
+        }
+
+        // 4. Tính toán Định thức Ma trận (Cấp đại học)
+        function calcMatrixDet() {
+            let matrixStr = prompt("Nhập ma trận vuông dạng mảng (Ví dụ: [[1,2],[3,4]]):");
+            if (!matrixStr) return;
+            try {
+                let matrix = JSON.parse(matrixStr);
+                let det = math.det(matrix);
+                display.innerText = `Det = ${det}`;
+                history.innerText = `det(${matrixStr})`;
+            } catch (e) {
+                display.innerText = "Định dạng sai!";
+            }
+        }
+
+        // 5. Tính Ma trận nghịch đảo
+        function calcMatrixInvert() {
+            let matrixStr = prompt("Nhập ma trận cần nghịch đảo (Ví dụ: [[1,2],[3,4]]):");
+            if (!matrixStr) return;
+            try {
+                let matrix = JSON.parse(matrixStr);
+                let inv = math.inv(matrix);
+                display.innerText = JSON.stringify(inv);
+                history.innerText = `inv(${matrixStr})`;
+            } catch (e) {
+                display.innerText = "Lỗi tính ma trận";
+            }
+        }
+
+        // 6. Tính Đạo hàm (Cấp Đại học / Tiến sĩ)
+        function calcDerivative() {
+            let expr = prompt("Nhập hàm số cần tính đạo hàm theo x (Ví dụ: x^3 + 2x):");
+            if (!expr) return;
+            try {
+                let derived = math.derivative(expr, 'x');
+                display.innerText = derived.toString();
+                history.innerText = `d/dx (${expr})`;
+            } catch (e) {
+                display.innerText = "Lỗi cú pháp hàm số!";
+            }
+        }
+
+        // 7. Tính Tích phân xác định (Cấp Đại học / Tiến sĩ)
+        function calcIntegral() {
+            let expr = prompt("Nhập hàm số f(x) (Ví dụ: x^2):");
+            let a = prompt("Nhập cận dưới a:");
+            let b = prompt("Nhập cận trên b:");
+            if (!expr || !a || !b) return;
+            
+            try {
+                // Sử dụng phương pháp mô phỏng hình thang Riemann để tính tích phân số học trực tiếp
+                let f = math.compile(expr);
+                let steps = 1000;
+                let h = (b - a) / steps;
+                let sum = 0.5 * (f.evaluate({x: parseFloat(a)}) + f.evaluate({x: parseFloat(b)}));
+                
+                for (let i = 1; i < steps; i++) {
+                    sum += f.evaluate({x: parseFloat(a) + i * h});
+                }
+                let result = sum * h;
+                display.innerText = `${result.toFixed(6)}`;
+                history.innerText = `∫ (${expr}) dx từ ${a} đến ${b}`;
+            } catch (e) {
+                display.innerText = "Lỗi tích phân!";
+            }
+        }
+
+        // 8. Định lý Pythagore (Cấp 2)
+        function toolPythagoras() {
+            let a = prompt("Nhập độ dài cạnh góc vuông 1 (a):");
+            let b = prompt("Nhập độ dài cạnh góc vuông 2 (b):");
+            if (!a || !b) return;
+            let c = Math.sqrt(a*a + b*b);
+            display.innerText = `Cạnh huyền c = ${c.toFixed(4)}`;
+            history.innerText = `√(${a}² + ${b}²)`;
+        }
+
+        // 9. Tích vô hướng Vector 3D (Cấp 3)
+        function toolVectorDot() {
+            let v1 = prompt("Nhập vectơ 1 dạng [x,y,z] (Ví dụ: [1,2,3]):");
+            let v2 = prompt("Nhập vectơ 2 dạng [x,y,z] (Ví dụ: [4,5,6]):");
+            if (!v1 || !v2) return;
+            try {
+                let vec1 = JSON.parse(v1);
+                let vec2 = JSON.parse(v2);
+                let dotProduct = math.dot(vec1, vec2);
+                display.innerText = `Tích vô hướng = ${dotProduct}`;
+                history.innerText = `${v1} • ${v2}`;
+            } catch (e) {
+                display.innerText = "Lỗi cấu trúc vectơ!";
+            }
+        }
+
+        // 10. Hình học khối (Khối nón / cầu - Cấp 3)
+        function toolGeometryCone() {
+            let r = prompt("Nhập bán kính r:");
+            if (!r) return;
+            let vSphere = (4/3) * Math.PI * Math.pow(r, 3);
+            display.innerText = `V (Cầu): ${vSphere.toFixed(3)}`;
+            history.innerText = `Thể tích hình cầu bán kính r = ${r}`;
+        }
+    </script>
+</body>
+</html>
