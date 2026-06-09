@@ -1,1 +1,83 @@
+name: Build Unsigned iOS IPA
 
+on:
+  push:
+    branches: [ main, master ]
+  workflow_dispatch:
+
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+
+jobs:
+  build-ios:
+    runs-on: macos-latest
+
+    steps:
+    - name: Checkout Source Code
+      uses: actions/checkout@v4
+
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: 20
+
+    - name: Install Dependencies
+      run: |
+        npm install
+        npm install @capacitor/cli @capacitor/ios
+
+    - name: Prepare Web Production Directory
+      run: |
+        mkdir -p www
+        if [ -f "index.html" ]; then
+          cp index.html www/index.html
+        fi
+
+    - name: Add iOS Platform
+      run: |
+        npx cap add ios || true
+        npx cap sync ios
+
+    - name: Install Pods Dependencies
+      run: |
+        cd ios/App
+        pod install
+
+    - name: Advanced Code Sign Bypass
+      run: |
+        cd ios/App
+        echo "CODE_SIGNING_ALLOWED = NO" >> Names.xcconfig || true
+        echo "CODE_SIGNING_REQUIRED = NO" >> Names.xcconfig || true
+        
+        sed -i '' 's/ProvisioningStyle = Automatic;/ProvisioningStyle = Manual;/g' App.xcodeproj/project.pbxproj || true
+        sed -i '' 's/CODE_SIGN_STYLE = Automatic;/CODE_SIGN_STYLE = Manual;/g' App.xcodeproj/project.pbxproj || true
+        sed -i '' 's/CODE_SIGN_IDENTITY = "iPhone Developer";/CODE_SIGN_IDENTITY = "";/g' App.xcodeproj/project.pbxproj || true
+
+    - name: Build Xcode Archive (Bypass Export Checks)
+      run: |
+        # Tuyệt chiêu đóng gói thành tệp .xcarchive để vượt qua mọi rào cản check chữ ký của Apple
+        xcodebuild -workspace ios/App/App.xcworkspace \
+                   -scheme App \
+                   -configuration Release \
+                   -sdk iphoneos \
+                   -archivePath ios/App/ToanLop3.xcarchive \
+                   CODE_SIGNING_ALLOWED=NO \
+                   CODE_SIGNING_REQUIRED=NO \
+                   CODE_SIGN_IDENTITY="" \
+                   clean archive
+
+    - name: Extract App and Package into Proper Unsigned IPA
+      run: |
+        mkdir -p Payload
+        
+        # Trích xuất trực tiếp file App.app xịn từ trong gói Archive ra để đóng gói
+        cp -r ios/App/ToanLop3.xcarchive/Products/Applications/App.app Payload/
+        
+        # Nén thành file IPA tiêu chuẩn cho TrollStore/Esign
+        zip -r ToanLop3-unsigned.ipa Payload
+
+    - name: Upload Finished IPA as Artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: ToanLop3-Unsigned-IPA
+        path: ToanLop3-unsigned.ipa
